@@ -27,29 +27,6 @@ export default function ReEntryForm() {
 
   return (
     <div className="min-h-screen bg-white">
-
-      {/* NAVBAR */}
-      <nav className="flex items-center justify-between px-8 py-3 bg-white shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🌸</span>
-          <span className="font-bold text-lg tracking-wide">SHE-RETURNS</span>
-        </div>
-        <div className="flex items-center gap-8 text-sm font-semibold text-gray-800">
-          <span onClick={() => navigate("/home")} className="cursor-pointer hover:text-purple-600">HOME</span>
-          <span onClick={() => navigate("/reentry-form")} className="cursor-pointer hover:text-purple-600">RENTRY FORM</span>
-          <span onClick={() => navigate("/dashboard")} className="cursor-pointer hover:text-purple-600">DASHBOARD</span>
-          <span onClick={() => navigate("/scholarship")} className="cursor-pointer hover:text-purple-600">SCHOLARSHIP FORM</span>
-          <span onClick={() => navigate("/schedule")} className="cursor-pointer hover:text-purple-600">SCHEDULE</span>
-          <span onClick={() => navigate("/about")} className="cursor-pointer hover:text-purple-600">ABOUT</span>
-          <button
-            onClick={() => navigate("/login")}
-            className="bg-[#e8705a] hover:bg-[#d45f49] text-white px-5 py-2 rounded-full font-semibold transition"
-          >
-            LOGOUT
-          </button>
-        </div>
-      </nav>
-
       {/* FORM BODY */}
       <div className="bg-[#c9b8f0] min-h-screen px-10 py-8 relative">
 

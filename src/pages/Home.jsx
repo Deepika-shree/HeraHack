@@ -6,28 +6,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* NAVBAR */}
-      <nav className="flex items-center justify-between px-8 py-3 bg-white shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🌸</span>
-          <span className="font-bold text-lg tracking-wide">SHE-RETURNS</span>
-        </div>
-        <div className="flex items-center gap-8 text-sm font-semibold text-gray-800">
-          <span onClick={() => navigate("/home")} className="cursor-pointer hover:text-purple-600">HOME</span>
-          <span onClick={() => navigate("/reentry-form")} className="cursor-pointer hover:text-purple-600">RENTRY FORM</span>
-          <span onClick={() => navigate("/dashboard")} className="cursor-pointer hover:text-purple-600">DASHBOARD</span>
-          <span onClick={() => navigate("/scholarship")} className="cursor-pointer hover:text-purple-600">SCHOLARSHIP FORM</span>
-          <span onClick={() => navigate("/schedule")} className="cursor-pointer hover:text-purple-600">SCHEDULE</span>
-          <span onClick={() => navigate("/about")} className="cursor-pointer hover:text-purple-600">ABOUT</span>
-          <button
-            onClick={() => navigate("/login")}
-            className="bg-[#e8705a] hover:bg-[#d45f49] text-white px-5 py-2 rounded-full font-semibold transition"
-          >
-            LOGOUT
-          </button>
-        </div>
-      </nav>
-
       {/* HERO SECTION */}
       <div className="bg-[#d8c9f0] mx-6 mt-6 rounded-2xl px-10 py-8 flex items-center justify-between">
         <div className="flex-1">
@@ -84,10 +62,10 @@ export default function Home() {
             route: "/scholarship",
           },
           {
-            title: "Upcoming Study Schedule",
-            desc: "Plan Study Time Around Your Life",
+            title: "Take your Assessment",
+            desc: "Discover Your Strengths And Areas To Improve",
             img: "https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=300&q=80",
-            route: "/schedule",
+            route: "/assessment",
           },
         ].map((card) => (
           <div key={card.title} className="bg-white rounded-2xl shadow-md overflow-hidden">
