@@ -1,0 +1,182 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+export default function ReEntryForm() {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    fullName: "",
+    address: "",
+    contact: "",
+    location: "",
+    educationLevel: "",
+    gapYears: "",
+    digitalAccess: "",
+    careerArea: "",
+    skillLevel: "",
+  });
+
+  const handleChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = () => {
+  navigate("/assessment", { state: { careerArea: form.careerArea } });
+};
+
+
+  return (
+    <div className="min-h-screen bg-white">
+
+      {/* NAVBAR */}
+      <nav className="flex items-center justify-between px-8 py-3 bg-white shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🌸</span>
+          <span className="font-bold text-lg tracking-wide">SHE-RETURNS</span>
+        </div>
+        <div className="flex items-center gap-8 text-sm font-semibold text-gray-800">
+          <span onClick={() => navigate("/home")} className="cursor-pointer hover:text-purple-600">HOME</span>
+          <span onClick={() => navigate("/reentry-form")} className="cursor-pointer hover:text-purple-600">RENTRY FORM</span>
+          <span onClick={() => navigate("/dashboard")} className="cursor-pointer hover:text-purple-600">DASHBOARD</span>
+          <span onClick={() => navigate("/scholarship")} className="cursor-pointer hover:text-purple-600">SCHOLARSHIP FORM</span>
+          <span onClick={() => navigate("/schedule")} className="cursor-pointer hover:text-purple-600">SCHEDULE</span>
+          <span onClick={() => navigate("/about")} className="cursor-pointer hover:text-purple-600">ABOUT</span>
+          <button
+            onClick={() => navigate("/login")}
+            className="bg-[#e8705a] hover:bg-[#d45f49] text-white px-5 py-2 rounded-full font-semibold transition"
+          >
+            LOGOUT
+          </button>
+        </div>
+      </nav>
+
+      {/* FORM BODY */}
+      <div className="bg-[#c9b8f0] min-h-screen px-10 py-8 relative">
+
+        <h2 className="text-lg font-bold text-purple-900 mb-4">Personal information</h2>
+        <div className="grid grid-cols-2 gap-4 mb-6 max-w-2xl">
+          <input type="text" placeholder="Full Name" value={form.fullName}
+            onChange={(e) => handleChange("fullName", e.target.value)}
+            className="px-4 py-3 rounded-lg bg-[#d4a99a] placeholder-white text-white font-semibold focus:outline-none" />
+          <input type="text" placeholder="Address" value={form.address}
+            onChange={(e) => handleChange("address", e.target.value)}
+            className="px-4 py-3 rounded-lg bg-[#d4a99a] placeholder-white text-white font-semibold focus:outline-none" />
+          <input type="text" placeholder="Contact Number" value={form.contact}
+            onChange={(e) => handleChange("contact", e.target.value)}
+            className="px-4 py-3 rounded-lg bg-[#d4a99a] placeholder-white text-white font-semibold focus:outline-none" />
+          <input type="text" placeholder="Live location (city, state)" value={form.location}
+            onChange={(e) => handleChange("location", e.target.value)}
+            className="px-4 py-3 rounded-lg bg-[#d4a99a] placeholder-white text-white font-semibold focus:outline-none" />
+        </div>
+
+        <div className="bg-[#d9d4e8] rounded-2xl p-6 max-w-2xl mb-6">
+          <h3 className="font-bold text-gray-800 mb-4">Educational gaps</h3>
+
+          <div className="bg-white rounded-xl px-4 py-3 mb-3">
+            <p className="text-sm font-semibold text-gray-700 mb-2">Education level</p>
+            <div className="flex gap-6">
+              {["Below 10th", "12th Completed", "Under-graduate incomplete"].map((opt) => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+                  <input type="radio" name="educationLevel" value={opt}
+                    checked={form.educationLevel === opt}
+                    onChange={() => handleChange("educationLevel", opt)}
+                    className="accent-purple-500 w-4 h-4" />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl px-4 py-3 mb-3">
+            <p className="text-sm font-semibold text-gray-700 mb-2">Gap years</p>
+            <div className="flex gap-6">
+              {["1-3 years", "4-7 years", "8+ years"].map((opt) => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+                  <input type="radio" name="gapYears" value={opt}
+                    checked={form.gapYears === opt}
+                    onChange={() => handleChange("gapYears", opt)}
+                    className="accent-purple-500 w-4 h-4" />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl px-4 py-3">
+            <p className="text-sm font-semibold text-gray-700 mb-2">Digital access</p>
+            <div className="flex gap-6">
+              {["Yes", "No"].map((opt) => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+                  <input type="radio" name="digitalAccess" value={opt}
+                    checked={form.digitalAccess === opt}
+                    onChange={() => handleChange("digitalAccess", opt)}
+                    className="accent-purple-500 w-4 h-4" />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-[#d9d4e8] rounded-2xl p-6 max-w-2xl mb-6">
+          <h3 className="font-bold text-gray-800 mb-4">Career growth Interests</h3>
+
+          <div className="bg-white rounded-xl px-4 py-3 mb-3">
+            <p className="text-sm font-semibold text-gray-700 mb-2">Interested career area</p>
+            <div className="flex gap-6">
+              {["Technology", "Healthcare", "Business"].map((opt) => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+                  <input type="radio" name="careerArea" value={opt}
+                    checked={form.careerArea === opt}
+                    onChange={() => handleChange("careerArea", opt)}
+                    className="accent-purple-500 w-4 h-4" />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl px-4 py-3">
+            <p className="text-sm font-semibold text-gray-700 mb-2">Skill level</p>
+            <div className="flex gap-6">
+              {["Beginner", "Intermediate", "Advance"].map((opt) => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+                  <input type="radio" name="skillLevel" value={opt}
+                    checked={form.skillLevel === opt}
+                    onChange={() => handleChange("skillLevel", opt)}
+                    className="accent-purple-500 w-4 h-4" />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* BOTTOM BUTTONS */}
+<div className="max-w-2xl flex justify-between items-center mt-6 mb-16">
+
+  {/* Save Info Button */}
+  <button
+    onClick={() => alert("Information saved!")}
+    className="bg-[#7e57c2] hover:bg-[#6a3fbf] text-white px-10 py-3 rounded-full font-semibold text-sm transition shadow-md"
+  >
+    Save info
+  </button>
+
+</div>
+
+{/* Click Here - Fixed Bottom Right */}
+<div className="fixed bottom-8 right-8">
+  <button
+    onClick={handleSubmit}
+    className="bg-[#e8705a] hover:bg-[#d45f49] text-white px-8 py-5 rounded-2xl font-bold text-base shadow-lg transition"
+  >
+    Click here,<br />to take assessment
+  </button>
+</div>
+
+
+      </div>
+    </div>
+  );
+}
