@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { collection, addDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 const scholarships = [
   {
@@ -38,6 +40,8 @@ export default function Scholarship() {
   const [state, setState] = useState("All");
   const [field, setField] = useState("All");
   const [mode, setMode] = useState("All");
+  const [applied, setApplied] = useState({}); // tracks applied scholarships
+  const [applying, setApplying] = useState(null); // tracks which is loading
 
   const filtered = scholarships.filter((s) => {
     return (
@@ -47,6 +51,32 @@ export default function Scholarship() {
       (mode === "All" || s.mode === mode)
     );
   });
+
+  const handleApply = async (scholarship) => {
+    setApplying(scholarship.id);
+    try {
+      const user = auth.currentUser;
+      await addDoc(collection(db, "scholarship-applications"), {
+        scholarshipId: scholarship.id,
+        scholarshipName: scholarship.name,
+        education: scholarship.education,
+        state: scholarship.state,
+        field: scholarship.field,
+        mode: scholarship.mode,
+        userId: user?.uid || "anonymous",
+        email: user?.email || "",
+        appliedAt: new Date().toISOString(),
+        status: "pending",
+      });
+      setApplied((prev) => ({ ...prev, [scholarship.id]: true }));
+      alert(`✅ Applied for "${scholarship.name}" successfully!`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to apply. Try again.");
+    } finally {
+      setApplying(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -63,58 +93,46 @@ export default function Scholarship() {
           <div className="flex items-center gap-3 mb-3 flex-wrap">
             <span className="font-semibold text-gray-700 w-20">Education:</span>
             {["All", "UG", "PG", "Diploma"].map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setEducation(opt)}
+              <button key={opt} onClick={() => setEducation(opt)}
                 className={`px-3 py-1 rounded-full text-sm border transition ${
                   education === opt
                     ? "bg-purple-500 text-white border-purple-500"
                     : "bg-white text-gray-700 border-gray-300 hover:border-purple-400"
-                }`}
-              >
+                }`}>
                 {opt}
               </button>
             ))}
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="font-semibold text-gray-700 w-20">Income:</span>
+            <span className="font-semibold text-gray-700 w-20">Filter:</span>
             {["All", "Tamil Nadu", "Maharashtra", "Karnataka"].map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setState(opt)}
+              <button key={opt} onClick={() => setState(opt)}
                 className={`px-3 py-1 rounded-full text-sm border transition ${
                   state === opt
                     ? "bg-purple-500 text-white border-purple-500"
                     : "bg-white text-gray-700 border-gray-300 hover:border-purple-400"
-                }`}
-              >
+                }`}>
                 {opt}
               </button>
             ))}
             {["Business Management", "Technology"].map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setField(opt)}
+              <button key={opt} onClick={() => setField(opt)}
                 className={`px-3 py-1 rounded-full text-sm border transition ${
                   field === opt
                     ? "bg-purple-500 text-white border-purple-500"
                     : "bg-white text-gray-700 border-gray-300 hover:border-purple-400"
-                }`}
-              >
+                }`}>
                 {opt}
               </button>
             ))}
             {["Online", "Hybrid"].map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setMode(opt)}
+              <button key={opt} onClick={() => setMode(opt)}
                 className={`px-3 py-1 rounded-full text-sm border transition ${
                   mode === opt
                     ? "bg-purple-500 text-white border-purple-500"
                     : "bg-white text-gray-700 border-gray-300 hover:border-purple-400"
-                }`}
-              >
+                }`}>
                 {opt}
               </button>
             ))}
@@ -130,10 +148,8 @@ export default function Scholarship() {
           </p>
         ) : (
           filtered.map((s) => (
-            <div
-              key={s.id}
-              className="bg-[#e8e0f7] rounded-2xl p-6 flex flex-col justify-between min-h-64"
-            >
+            <div key={s.id}
+              className="bg-[#e8e0f7] rounded-2xl p-6 flex flex-col justify-between min-h-64">
               <h3 className="font-bold text-gray-800 text-lg mb-2">{s.name}</h3>
               <div className="flex flex-col gap-1 text-sm text-gray-600 mb-4">
                 <span>🎓 {s.education}</span>
@@ -145,8 +161,15 @@ export default function Scholarship() {
                 <button className="bg-[#4a4a6a] hover:bg-[#3a3a5a] text-white px-4 py-2 rounded-md text-sm font-semibold transition">
                   View Details
                 </button>
-                <button className="bg-[#e8705a] hover:bg-[#d45f49] text-white px-4 py-2 rounded-md text-sm font-semibold transition">
-                  Apply Now
+                <button
+                  onClick={() => handleApply(s)}
+                  disabled={applied[s.id] || applying === s.id}
+                  className={`px-4 py-2 rounded-md text-sm font-semibold transition ${
+                    applied[s.id]
+                      ? "bg-green-500 text-white cursor-default"
+                      : "bg-[#e8705a] hover:bg-[#d45f49] text-white"
+                  }`}>
+                  {applied[s.id] ? "Applied ✅" : applying === s.id ? "Applying..." : "Apply Now"}
                 </button>
               </div>
             </div>

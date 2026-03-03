@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { collection, addDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 export default function ReEntryForm() {
   const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -20,14 +24,32 @@ export default function ReEntryForm() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
-  navigate("/assessment", { state: { careerArea: form.careerArea } });
-};
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const user = auth.currentUser;
+      await addDoc(collection(db, "reentry-forms"), {
+        ...form,
+        userId: user?.uid || "anonymous",
+        email: user?.email || "",
+        submittedAt: new Date().toISOString(),
+      });
+      setSaved(true);
+      alert("Information saved successfully! ✅");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save. Try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
+  const handleSubmit = () => {
+    navigate("/assessment", { state: { careerArea: form.careerArea } });
+  };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* FORM BODY */}
       <div className="bg-[#c9b8f0] min-h-screen px-10 py-8 relative">
 
         <h2 className="text-lg font-bold text-purple-900 mb-4">Personal information</h2>
@@ -48,7 +70,6 @@ export default function ReEntryForm() {
 
         <div className="bg-[#d9d4e8] rounded-2xl p-6 max-w-2xl mb-6">
           <h3 className="font-bold text-gray-800 mb-4">Educational gaps</h3>
-
           <div className="bg-white rounded-xl px-4 py-3 mb-3">
             <p className="text-sm font-semibold text-gray-700 mb-2">Education level</p>
             <div className="flex gap-6">
@@ -97,7 +118,6 @@ export default function ReEntryForm() {
 
         <div className="bg-[#d9d4e8] rounded-2xl p-6 max-w-2xl mb-6">
           <h3 className="font-bold text-gray-800 mb-4">Career growth Interests</h3>
-
           <div className="bg-white rounded-xl px-4 py-3 mb-3">
             <p className="text-sm font-semibold text-gray-700 mb-2">Interested career area</p>
             <div className="flex gap-6">
@@ -130,28 +150,25 @@ export default function ReEntryForm() {
         </div>
 
         {/* BOTTOM BUTTONS */}
-<div className="max-w-2xl flex justify-between items-center mt-6 mb-16">
+        <div className="max-w-2xl flex justify-between items-center mt-6 mb-16">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-[#7e57c2] hover:bg-[#6a3fbf] text-white px-10 py-3 rounded-full font-semibold text-sm transition shadow-md disabled:opacity-50"
+          >
+            {saving ? "Saving..." : saved ? "Saved ✅" : "Save info"}
+          </button>
+        </div>
 
-  {/* Save Info Button */}
-  <button
-    onClick={() => alert("Information saved!")}
-    className="bg-[#7e57c2] hover:bg-[#6a3fbf] text-white px-10 py-3 rounded-full font-semibold text-sm transition shadow-md"
-  >
-    Save info
-  </button>
-
-</div>
-
-{/* Click Here - Fixed Bottom Right */}
-<div className="fixed bottom-8 right-8">
-  <button
-    onClick={handleSubmit}
-    className="bg-[#e8705a] hover:bg-[#d45f49] text-white px-8 py-5 rounded-2xl font-bold text-base shadow-lg transition"
-  >
-    Click here,<br />to take assessment
-  </button>
-</div>
-
+        {/* Fixed Bottom Right */}
+        <div className="fixed bottom-8 right-8">
+          <button
+            onClick={handleSubmit}
+            className="bg-[#e8705a] hover:bg-[#d45f49] text-white px-8 py-5 rounded-2xl font-bold text-base shadow-lg transition"
+          >
+            Click here,<br />to take assessment
+          </button>
+        </div>
 
       </div>
     </div>
