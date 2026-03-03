@@ -15,6 +15,7 @@ const Navbar = () => {
         <Link to="/reentry-form" className="hover:text-purple-700 transition-colors">RENTRY FORM</Link>
         <Link to="/dashboard" className="hover:text-purple-700 transition-colors">DASHBOARD</Link>
         <Link to="/scholarship" className="hover:text-purple-700 transition-colors">SCHOLARSHIP FORM</Link>
+        <Link to="/chatbot">AI COACH</Link>
         <Link to="/about" className="hover:text-purple-700 transition-colors">ABOUT</Link>
       </div>
 

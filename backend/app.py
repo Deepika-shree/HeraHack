@@ -1,20 +1,22 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from google import genai
-from google.genai import types
 import os
 from dotenv import load_dotenv
+from groq import Groq
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-
-MODEL = "models/gemini-2.0-flash-lite"
+client = Groq(api_key="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")
+MODEL = "llama-3.3-70b-versatile"
 
 chat_sessions = {}
+
+SYSTEM_PROMPT = """You are a warm, encouraging career coach for women 
+returning to work after a career break. Be concise, supportive, 
+and actionable. Keep responses under 100 words."""
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -22,56 +24,67 @@ def chat():
     user_message = data.get("message", "")
     session_id = data.get("session_id", "default")
 
-    system_prompt = """You are a warm, encouraging career coach for women 
-    returning to work after a career break. Be concise, supportive, 
-    and actionable. Keep responses under 100 words."""
-
     if session_id not in chat_sessions:
         chat_sessions[session_id] = []
 
-    history = chat_sessions[session_id]
+    chat_sessions[session_id].append({
+        "role": "user",
+        "content": user_message
+    })
 
     try:
-        response = client.models.generate_content(
+        response = client.chat.completions.create(
             model=MODEL,
-            contents=[
-                types.Content(role="user", parts=[types.Part(text=system_prompt)]),
-                *history,
-                types.Content(role="user", parts=[types.Part(text=user_message)])
-            ]
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                *chat_sessions[session_id]
+            ],
+            temperature=0.7,
         )
-        reply = response.text
+        reply = response.choices[0].message.content
 
-        chat_sessions[session_id].append(
-            types.Content(role="user", parts=[types.Part(text=user_message)])
-        )
-        chat_sessions[session_id].append(
-            types.Content(role="model", parts=[types.Part(text=reply)])
-        )
+        chat_sessions[session_id].append({
+            "role": "assistant",
+            "content": reply
+        })
 
         return jsonify({"reply": reply, "session_id": session_id})
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"reply": "Sorry, try again!", "error": str(e)}), 200
 
+
 @app.route("/generate-questions", methods=["POST"])
 def generate_questions():
     data = request.json
     skill = data.get("skill", "Technology")
+    level = data.get("level", "Beginner")
 
-    prompt = f"""Generate 8 beginner assessment questions for {skill}. 
-    Return ONLY valid JSON:
-    {{"questions": ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8"]}}"""
+    prompt = f"""Generate 5 multiple choice questions for someone re-entering 
+the workforce in {skill} at {level} level.
+
+Return ONLY a valid JSON array, no extra text:
+[
+  {{
+    "id": 1,
+    "question": "Question text?",
+    "options": ["A", "B", "C", "D"],
+    "answer": "A"
+  }}
+]"""
 
     try:
-        response = client.models.generate_content(
+        response = client.chat.completions.create(
             model=MODEL,
-            contents=prompt
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
         )
-        return jsonify({"llm_output": response.text})
+        text = response.choices[0].message.content
+        return jsonify({"llm_output": text})
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
