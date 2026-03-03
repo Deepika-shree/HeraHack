@@ -53,6 +53,70 @@ def chat():
         print("ERROR:", str(e))
         return jsonify({"reply": "Sorry, try again!", "error": str(e)}), 200
 
+@app.route("/calculate-score", methods=["POST"])
+def calculate_score():
+    data = request.json
+    career_area = data.get("careerArea", "Technology")
+    skill_level = data.get("skillLevel", "Beginner")
+    questions = data.get("questions", [])
+    user_answers = data.get("answers", {})
+
+    # Build Q&A summary for AI
+    qa_summary = ""
+    for q in questions:
+        user_ans = user_answers.get(str(q["id"]), "Not answered")
+        correct_ans = q["answer"]
+        is_correct = user_ans == correct_ans
+        qa_summary += f"""
+Q{q['id']}: {q['question']}
+User answered: {user_ans}
+Correct answer: {correct_ans}
+Result: {"✓ Correct" if is_correct else "✗ Wrong"}
+"""
+
+    prompt = f"""You are an expert career assessment evaluator.
+
+A woman re-entering the workforce in {career_area} at {skill_level} level 
+just completed an assessment. Here are her results:
+
+{qa_summary}
+
+Analyze her performance and provide:
+1. A weighted score out of 100 (not just percentage — weigh harder questions more)
+2. Her strongest area
+3. Her weakest area  
+4. 3 specific learning recommendations
+5. An encouraging message
+
+Return ONLY valid JSON in this exact format:
+{{
+  "weighted_score": 85,
+  "grade": "B+",
+  "strongest_area": "...",
+  "weakest_area": "...",
+  "recommendations": ["rec1", "rec2", "rec3"],
+  "message": "encouraging message here",
+  "breakdown": {{
+    "accuracy": 80,
+    "consistency": 75,
+    "concept_strength": 90
+  }}
+}}"""
+
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+        )
+        text = response.choices[0].message.content
+        cleaned = text.replace("```json", "").replace("```", "").strip()
+        import json
+        result = json.loads(cleaned)
+        return jsonify(result)
+    except Exception as e:
+        print("ERROR:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/generate-questions", methods=["POST"])
 def generate_questions():
